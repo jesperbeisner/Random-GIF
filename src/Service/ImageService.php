@@ -11,7 +11,8 @@ class ImageService
 {
     public function __construct(
         private ParameterBagInterface $parameterBag
-    ) {
+    )
+    {
     }
 
     public function getRandomImageName(): string
@@ -26,6 +27,12 @@ class ImageService
 
         if (count($images) === 0) {
             throw new RuntimeException('No images found in the image folder. You first need to upload some images.');
+        }
+
+        if (count($images) === 1) {
+            if (str_contains(reset($images), '.gitkeep')) {
+                throw new RuntimeException('No images found in the image folder. You first need to upload some images.');
+            }
         }
 
         while ($gifFound === false) {
