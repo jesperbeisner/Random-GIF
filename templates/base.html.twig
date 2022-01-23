@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Herzlich Willkommen!{% endblock %}</title>
+        <style>
+            body {
+                background-color: black;
+            }
+
+            img {
+                position: absolute;
+                height: 100%;
+                top: 0;
+                bottom: 0;
+            }
+        </style>
+    </head>
+    <body>
+        {% block body %}{% endblock %}
+    </body>
+</html>
