@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use DateTime;
+use DateTimeZone;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -26,12 +28,12 @@ class DiscordService
             throw new RuntimeException('You forgot to set the discord webhook in your .env.local file');
         }
 
-        $dateAndTime = date('d.m.Y - H:i') . 'Uhr';
-        $ipAddress = $request->getClientIp() ?? 'Unknown';
+        $dateAndTime = $this->getDateAndTime();
+        $ipAddresses = $this->getIpAddresses();
         $userAgent = $request->headers->get('User-Agent') ?? 'Unknown';
 
         $description = "**Datum und Uhrzeit**: $dateAndTime" . PHP_EOL;
-        $description .= "**IP-Adresse**: $ipAddress" . PHP_EOL;
+        $description .= "**IP-Adressen**: $ipAddresses" . PHP_EOL;
         $description .= "**User-Agent**: $userAgent";
 
         $this->httpClient->request('POST', $webhook, [
@@ -47,5 +49,32 @@ class DiscordService
                 ]
             ],
         ]);
+    }
+
+    private function getDateAndTime(): string
+    {
+        $dateAndTime = new DateTime('now', new DateTimeZone('Europe/Berlin'));
+        return $dateAndTime->format('d.m.Y - H:i') . 'Uhr';
+    }
+
+    public function getIpAddresses(): string
+    {
+        $result = 'Unknown';
+
+        $request = $this->requestStack->getCurrentRequest();
+        $clientIps = $request->getClientIps();
+
+        if (count($clientIps) > 0) {
+            $result = '';
+            foreach ($clientIps as $clientIp) {
+                $result .= $clientIp . ' - ';
+            }
+        }
+
+        if ($result !== 'Unknown') {
+            $result = substr($result, 0, -3);
+        }
+
+        return $result;
     }
 }
